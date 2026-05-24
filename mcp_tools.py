@@ -120,7 +120,7 @@ def load_contract(session_id: str) -> str:
         session_id: 用户从上传页面获取的会话标识（8位字符）
 
     Returns:
-        JSON：{"status","file_id","filename","message"}
+        JSON：{"status","file_id","filename","contract_content","message"}
         返回的 file_id 可直接用于 insert_comments
     """
     _cleanup_cache()
@@ -129,17 +129,46 @@ def load_contract(session_id: str) -> str:
         return _err(f"session_id '{session_id}' 不存在或已过期（1小时），请让用户重新上传")
 
     cached = _file_cache[session_id]
-    if not os.path.exists(cached["path"]):
+    docx_path = cached["path"]
+    if not os.path.exists(docx_path):
         del _file_cache[session_id]
         return _err("文件已失效，请让用户重新上传")
 
+    # 自动提取 DOCX 中的合同文本内容，直接提供给大模型，避免用户手动复制粘贴
+    try:
+        import docx
+        doc = docx.Document(docx_path)
+        paragraphs_text = []
+        for p in doc.paragraphs:
+            val = p.text.strip()
+            if val:
+                paragraphs_text.append(val)
+        
+        # 提取表格文本，防止漏掉关键付款节点或质保期表格
+        for table in doc.tables:
+            for row in table.rows:
+                row_vals = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                if row_vals:
+                    # 相邻单元格去重（解决合并单元格在 python-docx 中重复读取的问题）
+                    unique_vals = []
+                    for v in row_vals:
+                        if not unique_vals or unique_vals[-1] != v:
+                            unique_vals.append(v)
+                    paragraphs_text.append(" [表格行] " + " | ".join(unique_vals))
+                    
+        contract_text = "\n".join(paragraphs_text)
+    except Exception as e:
+        contract_text = f"【合同文本内容自动提取失败: {e}】"
+
     return json.dumps({
-        "status":   "success",
-        "file_id":  session_id,
-        "filename": cached["filename"],
-        "message":  f"合同文件 '{cached['filename']}' 已加载（file_id={session_id}）。"
-                    "请审核合同内容，生成批注后调用 check_comment_tone 和 insert_comments。",
+        "status":           "success",
+        "file_id":          session_id,
+        "filename":         cached["filename"],
+        "contract_content": contract_text,
+        "message":          f"合同文件 '{cached['filename']}' 已成功加载（file_id={session_id}）。"
+                            f"以下是自动提取的合同原文，请直接对其进行条款审核，无需让用户再复制粘贴条款内容：\n\n{contract_text}",
     }, ensure_ascii=False)
+
 
 
 @mcp.tool()
