@@ -666,9 +666,9 @@ body {
 
 /* ── Retrieve Session ────────────────────────────── */
 .retrieve-container {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   border-top: 1px solid var(--border);
-  padding-top: 1.5rem;
+  padding-top: 1.75rem;
   animation: fadeIn 0.5s ease 0.15s both;
 }
 
@@ -678,7 +678,10 @@ body {
   text-align: center;
   color: var(--text-tertiary);
   font-size: 0.75rem;
-  margin-bottom: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
 }
 
 .retrieve-divider::before,
@@ -688,12 +691,12 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.retrieve-divider:not(:empty)::before {
-  margin-right: .75em;
+.retrieve-divider::before {
+  margin-right: 1rem;
 }
 
-.retrieve-divider:not(:empty)::after {
-  margin-left: .75em;
+.retrieve-divider::after {
+  margin-left: 1rem;
 }
 
 .retrieve-box {
@@ -701,7 +704,13 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition);
   text-align: left;
+}
+
+.retrieve-box:hover {
+  border-color: var(--border-hover);
 }
 
 .retrieve-box label {
@@ -709,7 +718,7 @@ body {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 0.625rem;
+  margin-bottom: 0.75rem;
 }
 
 .retrieve-input-group {
@@ -720,22 +729,25 @@ body {
 .retrieve-input-group input {
   flex: 1;
   min-width: 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.875rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  background: var(--bg-page);
   transition: all var(--transition);
 }
 
 .retrieve-input-group input:focus {
   outline: none;
-  border-color: var(--text-primary);
+  border-color: var(--accent);
+  background: var(--bg-white);
+  box-shadow: 0 0 0 2px var(--accent-light);
 }
 
 .retrieve-input-group button {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1.25rem;
   border: none;
   border-radius: var(--radius-md);
   background: var(--text-primary);
@@ -752,6 +764,11 @@ body {
   background: #27272a;
 }
 
+.retrieve-input-group button:active {
+  background: #09090b;
+  transform: scale(0.98);
+}
+
 .retrieve-input-group button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -759,11 +776,18 @@ body {
 
 .retrieve-error {
   display: none;
-  margin-top: 0.5rem;
+  margin-top: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(229, 83, 75, 0.05);
+  border: 1px solid rgba(229, 83, 75, 0.1);
+  border-radius: var(--radius-sm);
   color: var(--danger);
   font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: left;
 }
 
 .retrieve-error.visible {
   display: block;
+  animation: fadeIn 0.2s ease;
 }
