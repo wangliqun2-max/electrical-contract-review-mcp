@@ -663,3 +663,107 @@ body {
     word-break: break-all;
   }
 }
+
+/* ── Retrieve Session ────────────────────────────── */
+.retrieve-container {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+  animation: fadeIn 0.5s ease 0.15s both;
+}
+
+.retrieve-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.retrieve-divider::before,
+.retrieve-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.retrieve-divider:not(:empty)::before {
+  margin-right: .75em;
+}
+
+.retrieve-divider:not(:empty)::after {
+  margin-left: .75em;
+}
+
+.retrieve-box {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: left;
+}
+
+.retrieve-box label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.625rem;
+}
+
+.retrieve-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.retrieve-input-group input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  transition: all var(--transition);
+}
+
+.retrieve-input-group input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+.retrieve-input-group button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--text-primary);
+  color: var(--text-inverted);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.retrieve-input-group button:hover {
+  background: #27272a;
+}
+
+.retrieve-input-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.retrieve-error {
+  display: none;
+  margin-top: 0.5rem;
+  color: var(--danger);
+  font-size: 0.75rem;
+}
+
+.retrieve-error.visible {
+  display: block;
+}

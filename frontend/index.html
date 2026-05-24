@@ -102,6 +102,21 @@
 
     <!-- Error -->
     <div class="error-message" id="errorMessage"></div>
+
+    <!-- Retrieve Section (For users who refreshed or returned) -->
+    <div class="retrieve-container">
+      <div class="retrieve-divider">
+        <span>或</span>
+      </div>
+      <div class="retrieve-box">
+        <label for="retrieveInput">已有会话 ID？输入直接下载或查询审核状态</label>
+        <div class="retrieve-input-group">
+          <input type="text" id="retrieveInput" placeholder="请输入8位会话 ID" maxlength="8" style="text-transform: lowercase;">
+          <button id="retrieveBtn">查询下载</button>
+        </div>
+        <div class="retrieve-error" id="retrieveError"></div>
+      </div>
+    </div>
   </section>
 
   <!-- Result Section -->
@@ -169,6 +184,9 @@
   const statusText       = document.getElementById('statusText');
   const downloadBtn      = document.getElementById('downloadBtn');
   const uploadAnotherBtn = document.getElementById('uploadAnotherBtn');
+  const retrieveInput    = document.getElementById('retrieveInput');
+  const retrieveBtn      = document.getElementById('retrieveBtn');
+  const retrieveError    = document.getElementById('retrieveError');
 
   let selectedFile   = null;
   let currentSession = null;
@@ -362,12 +380,82 @@
     window.location.href = `/api/download/${currentSession}`;
   });
 
+  // ── Retrieve Session ────────────────────────────
+  retrieveBtn.addEventListener('click', async () => {
+    const code = retrieveInput.value.trim().toLowerCase();
+    if (!code) return;
+
+    if (code.length !== 8) {
+      showRetrieveError('会话 ID 必须是 8 位字符');
+      return;
+    }
+
+    retrieveBtn.disabled = true;
+    hideRetrieveError();
+
+    try {
+      const res = await fetch(`/api/status/${code}`);
+      if (res.status === 404) {
+        showRetrieveError('会话 ID 不存在或已过期');
+        return;
+      }
+      const data = await res.json();
+      if (data.status === 'not_found') {
+        showRetrieveError('会话 ID 不存在或已过期');
+        return;
+      }
+
+      // Found the session! Switch to result view
+      currentSession = code;
+      sessionIdValue.textContent = code;
+      
+      // Update download status interface
+      if (data.status === 'done') {
+        statusDot.className = 'status-dot ready';
+        statusText.textContent = '批注版合同已就绪';
+        downloadBtn.classList.add('visible');
+        if (data.output_filename) {
+          downloadBtn.textContent = `下载 ${data.output_filename}`;
+        }
+      } else {
+        statusDot.className = 'status-dot waiting';
+        statusText.textContent = '等待 AI 助手完成审核…';
+        downloadBtn.classList.remove('visible');
+      }
+
+      uploadSection.style.display = 'none';
+      resultSection.classList.add('visible');
+      startStatusPolling(code);
+    } catch (err) {
+      showRetrieveError('网络错误，请稍后重试');
+    } finally {
+      retrieveBtn.disabled = false;
+    }
+  });
+
+  retrieveInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      retrieveBtn.click();
+    }
+  });
+
+  function showRetrieveError(msg) {
+    retrieveError.textContent = msg;
+    retrieveError.classList.add('visible');
+  }
+
+  function hideRetrieveError() {
+    retrieveError.classList.remove('visible');
+  }
+
   // ── Upload Another ─────────────────────────────
   uploadAnotherBtn.addEventListener('click', () => {
     if (pollTimer) clearInterval(pollTimer);
     currentSession = null;
     selectedFile = null;
     fileInput.value = '';
+    retrieveInput.value = '';
     filePreview.classList.remove('visible');
     uploadBtn.classList.remove('visible');
     downloadBtn.classList.remove('visible');
@@ -375,6 +463,7 @@
     statusText.textContent = '等待 AI 助手完成审核…';
     resultSection.classList.remove('visible');
     uploadSection.style.display = '';
+    hideRetrieveError();
   });
 
   // ── Helpers ────────────────────────────────────
