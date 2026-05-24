@@ -1,8 +1,5 @@
 [phases.setup]
 nixPkgs = ["libreoffice", "python311", "python311Packages.pip"]
 
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
-
 [start]
-cmd = "ls -la && python mcp_tools.py"
+cmd = "python mcp_tools.py"
