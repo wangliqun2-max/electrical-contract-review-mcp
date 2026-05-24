@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="电气合同审核工具 — 上传合同文件，获取会话ID，通过AI助手完成专业合同审核并嵌入批注">
+  <title>电气合同审核 — 合同上传</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+    </div>
+    <h1>电气合同智能审核</h1>
+    <p>上传合同文件，获取会话 ID，交给 AI 助手完成法务审核</p>
+  </header>
+
+  <!-- Steps Guide -->
+  <div class="steps-guide">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <div>
+        <h3>上传合同</h3>
+        <p>选择 .doc / .docx 文件</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <div>
+        <h3>复制会话 ID</h3>
+        <p>粘贴给 AI 助手</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <div>
+        <h3>下载批注版</h3>
+        <p>审核完成后下载</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Section -->
+  <section class="upload-section" id="uploadSection">
+
+    <div class="upload-zone" id="uploadZone">
+      <span class="upload-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </span>
+      <h3>拖拽合同文件到此处</h3>
+      <p>或 <span class="browse-link" id="browseLink">点击选择文件</span> · 支持 .doc / .docx</p>
+    </div>
+    <input type="file" class="file-input" id="fileInput" accept=".doc,.docx">
+
+    <!-- File Preview -->
+    <div class="file-preview" id="filePreview">
+      <div class="file-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5e6ad2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name" id="fileName">—</div>
+        <div class="file-size" id="fileSize">—</div>
+      </div>
+      <button class="file-remove" id="fileRemove" title="移除文件">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Upload Button -->
+    <button class="upload-btn" id="uploadBtn">上传合同</button>
+
+    <!-- Progress -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">正在上传…</div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-message" id="errorMessage"></div>
+  </section>
+
+  <!-- Result Section -->
+  <section class="result-section" id="resultSection">
+    <div class="result-card">
+      <div class="result-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2da44e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h3>上传成功</h3>
+      <p>请复制下方会话 ID，粘贴到 AI 助手的对话框中</p>
+
+      <div class="session-id-box">
+        <span class="session-id-label">会话 ID</span>
+        <span class="session-id-value" id="sessionIdValue">—</span>
+        <button class="copy-btn" id="copyBtn">复制</button>
+      </div>
+
+      <!-- Download Section -->
+      <div class="download-section">
+        <h4>批注版合同</h4>
+        <div class="download-status" id="downloadStatus">
+          <span class="status-dot waiting" id="statusDot"></span>
+          <span class="status-text" id="statusText">等待 AI 助手完成审核…</span>
+        </div>
+        <button class="download-btn" id="downloadBtn">下载批注版合同</button>
+      </div>
+
+      <button class="upload-another-btn" id="uploadAnotherBtn">上传另一份合同</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>电气合同审核工具 — 储能 · 变压器 · 开关柜 · 风机 · 光伏</p>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── DOM refs ───────────────────────────────────
+  const uploadSection    = document.getElementById('uploadSection');
+  const uploadZone       = document.getElementById('uploadZone');
+  const fileInput        = document.getElementById('fileInput');
+  const browseLink       = document.getElementById('browseLink');
+  const filePreview      = document.getElementById('filePreview');
+  const fileName         = document.getElementById('fileName');
+  const fileSize         = document.getElementById('fileSize');
+  const fileRemove       = document.getElementById('fileRemove');
+  const uploadBtn        = document.getElementById('uploadBtn');
+  const progressContainer = document.getElementById('progressContainer');
+  const progressFill     = document.getElementById('progressFill');
+  const progressText     = document.getElementById('progressText');
+  const errorMessage     = document.getElementById('errorMessage');
+  const resultSection    = document.getElementById('resultSection');
+  const sessionIdValue   = document.getElementById('sessionIdValue');
+  const copyBtn          = document.getElementById('copyBtn');
+  const downloadStatus   = document.getElementById('downloadStatus');
+  const statusDot        = document.getElementById('statusDot');
+  const statusText       = document.getElementById('statusText');
+  const downloadBtn      = document.getElementById('downloadBtn');
+  const uploadAnotherBtn = document.getElementById('uploadAnotherBtn');
+
+  let selectedFile   = null;
+  let currentSession = null;
+  let pollTimer      = null;
+
+  // ── File Selection ─────────────────────────────
+  browseLink.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
+  });
+
+  // Drag & Drop
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('drag-over');
+  });
+
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
+  });
+
+  function handleFileSelect(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['doc', 'docx'].includes(ext)) {
+      showError('不支持的文件格式，请上传 .doc 或 .docx 文件');
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      showError('文件过大，请上传 50MB 以内的文件');
+      return;
+    }
+
+    selectedFile = file;
+    hideError();
+
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    filePreview.classList.add('visible');
+    uploadBtn.classList.add('visible');
+  }
+
+  fileRemove.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    filePreview.classList.remove('visible');
+    uploadBtn.classList.remove('visible');
+    hideError();
+  });
+
+  // ── Upload ─────────────────────────────────────
+  uploadBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<span class="spinner"></span>上传中…';
+    progressContainer.classList.add('visible');
+    progressFill.style.width = '0%';
+    hideError();
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const result = await uploadWithProgress(formData);
+
+      progressFill.style.width = '100%';
+      progressText.textContent = '上传完成';
+
+      currentSession = result.session_id;
+      sessionIdValue.textContent = result.session_id;
+
+      setTimeout(() => {
+        uploadSection.style.display = 'none';
+        resultSection.classList.add('visible');
+        startStatusPolling(result.session_id);
+      }, 400);
+
+    } catch (err) {
+      showError(err.message || '上传失败，请重试');
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.innerHTML = '上传合同';
+      progressContainer.classList.remove('visible');
+    }
+  });
+
+  function uploadWithProgress(formData) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/upload');
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 90);
+          progressFill.style.width = pct + '%';
+          progressText.textContent = `上传中… ${pct}%`;
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.status === 'success') {
+              resolve(data);
+            } else {
+              reject(new Error(data.message || '上传失败'));
+            }
+          } catch {
+            reject(new Error('服务器响应解析失败'));
+          }
+        } else {
+          reject(new Error(`上传失败 (HTTP ${xhr.status})`));
+        }
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('网络错误，请检查连接')));
+      xhr.addEventListener('timeout', () => reject(new Error('上传超时，请重试')));
+      xhr.timeout = 120000;
+
+      xhr.send(formData);
+    });
+  }
+
+  // ── Copy Session ID ────────────────────────────
+  copyBtn.addEventListener('click', () => {
+    const id = sessionIdValue.textContent;
+    navigator.clipboard.writeText(id).then(() => {
+      copyBtn.textContent = '已复制';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = '复制';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      const range = document.createRange();
+      range.selectNodeContents(sessionIdValue);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    });
+  });
+
+  // ── Status Polling ─────────────────────────────
+  function startStatusPolling(sessionId) {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => checkStatus(sessionId), 5000);
+    checkStatus(sessionId);
+  }
+
+  async function checkStatus(sessionId) {
+    try {
+      const res = await fetch(`/api/status/${sessionId}`);
+      const data = await res.json();
+
+      if (data.status === 'done') {
+        statusDot.className = 'status-dot ready';
+        statusText.textContent = '批注版合同已就绪';
+        downloadBtn.classList.add('visible');
+        if (data.output_filename) {
+          downloadBtn.textContent = `下载 ${data.output_filename}`;
+        }
+        clearInterval(pollTimer);
+      } else if (data.status === 'uploaded') {
+        statusText.textContent = '等待 AI 助手完成审核…';
+      } else if (data.status === 'not_found') {
+        statusText.textContent = '会话已过期，请重新上传';
+        statusDot.className = 'status-dot';
+        statusDot.style.background = 'var(--danger)';
+        clearInterval(pollTimer);
+      }
+    } catch {
+      // Silent fail, keep polling
+    }
+  }
+
+  // ── Download ───────────────────────────────────
+  downloadBtn.addEventListener('click', () => {
+    if (!currentSession) return;
+    window.location.href = `/api/download/${currentSession}`;
+  });
+
+  // ── Upload Another ─────────────────────────────
+  uploadAnotherBtn.addEventListener('click', () => {
+    if (pollTimer) clearInterval(pollTimer);
+    currentSession = null;
+    selectedFile = null;
+    fileInput.value = '';
+    filePreview.classList.remove('visible');
+    uploadBtn.classList.remove('visible');
+    downloadBtn.classList.remove('visible');
+    statusDot.className = 'status-dot waiting';
+    statusText.textContent = '等待 AI 助手完成审核…';
+    resultSection.classList.remove('visible');
+    uploadSection.style.display = '';
+  });
+
+  // ── Helpers ────────────────────────────────────
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorMessage.classList.add('visible');
+  }
+
+  function hideError() {
+    errorMessage.classList.remove('visible');
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+})();
+</script>
+
+</body>
+</html>
